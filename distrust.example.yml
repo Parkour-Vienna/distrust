@@ -1,0 +1,43 @@
+---
+listenAddr: 0.0.0.0:3000
+log:
+  level: trace
+discourse:
+  server: https://meta.discourse.com
+  secret: <replace-me>
+oidc:
+  secret: 'some-exactly-32-byte-long-secret'
+  privateKey: |
+    -----BEGIN RSA PRIVATE KEY-----
+    MIIEpQIBAAKCAQEAtUsSpDa7NlprecQh0vkOiCTbMJIAuq4RjOGnZAjgd9jWKZOU
+    vmyM9zi7qPdutaGddfEknHUdPDkpeZjmNDE3z2FPogxLX4lqbkV5Bjn+0LwPBjmT
+    YIiGE9T9NTo43b28VNlrb7EqujUM0doZ8ujMqBuLZmaOLjwycRoVKNpjgOMoJGCj
+    JB677X0omIcMLWID39i1NnN9hxt1udIM1Ch5hzwhcTDmeXibVMAGhTyUBmBvKnlW
+    Wm5CYa/wHpQqhDSKXUHdGaye3js/dtQW+Z6NWdRMMNZw8sPEHA/6naDVgdYIWGFD
+    7oRNFbSKWNkAY6dTLbo1AG4tP07ycP/tEPwy5QIDAQABAoIBAQCG4XbaFBpPQxCJ
+    RKIBq+ji48DsLwQ5374Q+eYnJ++RWxNjVXiqAGsUl/IOsSB+I+LZ1/JsMTnyD3lL
+    DbXgCOpD8Vtk7g654qv7pNZ5CncJ55CqCfYbMRfH84P7sPiUCVDwM96Z988ZQNTr
+    4H/D2O5C+FNLeWu4/HJu8X/iqDC1t4ri9LLDdy6fJXQoTcDRVjnTjf6WwAazMcY5
+    gfa8EGIB2Mkf6VmUA1zHGZg6D1Fl8vyH7z3frGt005G/RgJNwPuUS/I6TONUCib9
+    NdgoReHacainfJNPv4YYIX7K4qOd8dNQZotTT47zw1KwHh6M9N7mNdDUej87yM0T
+    MKbgZKiBAoGBAN+CmGucMgOZjv6QaBeoJPEKlJ6JBIrA56wM6SEh2+naGlE/y1qz
+    QUqxxIDXu550thn2u0jF81XfekZO8BIRwpBNqlp0nuBhqztQ2lJ+xCRxwzQ8Oe1i
+    b1+0YBNQQc2/TX0Sg0bghUOxYx7BeSVPFXxIHuk1tWMDb83ajw2vR5LhAoGBAM+l
+    eanIOxXzH+ogTeh3HBhyYezkPlFMuSt3Xb0m/e1LHXX9Kf/nb2OxXyUoZnQJgcmS
+    CgldTD92WAIDDae+vcNor9fAQpyHJmE3/t/GkVXUld5DqgTPHR98aYoLTzwXifMj
+    f9Sw508j/WGjwByLzVTcqrX0+H+wlKb3/j9WDWSFAoGBAI0y+Ytx3366scVMARaA
+    2OWV45HLyZzGhRUCCv0tYLp5WIrfnF4uRB8l8pfaseJGpQv9/Q7aTwF+7sYf9DXW
+    Fm4HQolmh0AFM6GDUIkxIERNwh3rtkSrHOT/FHrfBtMt+Yv7+Ab8q/O5yn6RhzD0
+    pwQeo7h8f5yPfUA0xI7GnpbBAoGAfRWqp5tF9KADzq7tH6d41kU5NlH8NE9qkIOU
+    hViSyLpiIeyCu3R4Rm7X6PNgXHBJrdp6j0+Tmfs5YuTh+fXOLIPIwchAmDhV52Sq
+    9bSRYknwifbq2YDGg2wXy5+qeIGZiU0OOVrjzGnavlG9bbTN2VwgvgG3HHyL39Uu
+    ZIr7AF0CgYEAmXAiixHC3LqYzWnKsmwu8XSoHyjN3YgcF6F0xjWmmEgw+VXbMDdu
+    aOQdQv9nqS8nTcakYE5O1dGb30cQF37qHD3BScSFDTZohLgTx693/q8w//nFG5/q
+    HhK88Md6dk18f0ufr9kntWR0zza/tm3FaVP/yL3mb7n8olGQBS2TG4A=
+    -----END RSA PRIVATE KEY-----
+
+clients:
+  test:
+    secret: foobar
+    redirectURIs:
+      - 'https://openidconnect.net/callback'
