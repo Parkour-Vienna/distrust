@@ -42,7 +42,7 @@ func ValidateResponse(sso, sig, key string, nonce int) (url.Values, error) {
 		return nil, errors.Wrap(err, "decoding signature")
 	}
 
-	if bytes.Compare(h.Sum(nil), rsig) != 0 {
+	if !bytes.Equal(h.Sum(nil), rsig) {
 		return nil, errors.New("wrong signature from discourse")
 	}
 
