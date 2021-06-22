@@ -67,7 +67,10 @@ func main() {
 
 	// oauth2 setup
 	clients := map[string]clientConfig{}
-	viper.UnmarshalKey("clients", &clients)
+	err = viper.UnmarshalKey("clients", &clients)
+	if err != nil {
+		log.Fatal().Err(err).Msg("failed to parse clients")
+	}
 	log.Info().Int("numClients", len(clients)).Msg("clients loaded")
 	options := []auth.OIDCOption{}
 	if viper.GetString("oidc.privatekey") != "" {

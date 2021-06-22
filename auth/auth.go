@@ -64,7 +64,7 @@ func NewOIDC(path string, disc discourse.SSOConfig, clients map[string]fosite.Cl
 	if oopts.secret == nil {
 		log.Warn().Msg("no secret specified in oidc provider. When running multiple instances, make sure this secret is the same on all instances")
 		var secret = make([]byte, 32)
-		rand.Read(secret)
+		_, _ = rand.Read(secret)
 		oopts.secret = secret
 	}
 	if oopts.privateKey == nil {

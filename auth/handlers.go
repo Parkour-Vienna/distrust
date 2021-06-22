@@ -52,7 +52,6 @@ func (o *OIDCProvider) authEndpoint(rw http.ResponseWriter, req *http.Request) {
 		delete(o.inflight, sessionId)
 	}()
 	http.Redirect(rw, req, url, http.StatusTemporaryRedirect)
-	return
 }
 
 func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Request) {
@@ -60,13 +59,13 @@ func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Reques
 	cookie, err := req.Cookie("oidc_session")
 	if err != nil {
 		log.Warn().Err(err).Msg("fetching cookie")
-		json.NewEncoder(rw).Encode(map[string]string{"error": "invalid session, please try again"})
+		_ = json.NewEncoder(rw).Encode(map[string]string{"error": "invalid session, please try again"})
 		return
 	}
 
 	session, ok := o.inflight[uuid.MustParse(cookie.Value)]
 	if !ok {
-		json.NewEncoder(rw).Encode(map[string]string{"error": "invalid session, please try again"})
+		_ = json.NewEncoder(rw).Encode(map[string]string{"error": "invalid session, please try again"})
 		return
 	}
 	delete(o.inflight, uuid.MustParse(cookie.Value))
@@ -171,7 +170,7 @@ func (o *OIDCProvider) tokenEndpoint(rw http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	log.Info().Str("username", accessRequest.GetSession().(*openid.DefaultSession).Claims.Subject).Msg("user successfuly authenticated")
+	log.Info().Str("username", accessRequest.GetSession().(*openid.DefaultSession).Claims.Subject).Msg("user successfully authenticated")
 
 	// All done, send the response.
 	o.oauth2.WriteAccessResponse(rw, accessRequest, response)
@@ -184,7 +183,7 @@ func (o *OIDCProvider) informationEndpoint(rw http.ResponseWriter, req *http.Req
 
 	aroot := o.getAuthRoot(req)
 
-	json.NewEncoder(rw).Encode(map[string]interface{}{
+	_ = json.NewEncoder(rw).Encode(map[string]interface{}{
 		"issuer":                 "distrust",
 		"authorization_endpoint": aroot + "/auth",
 		"token_endpoint":         aroot + "/token",
@@ -214,7 +213,7 @@ func (o *OIDCProvider) certsEndpoint(rw http.ResponseWriter, req *http.Request) 
 		},
 	}
 	rw.Header().Add("Content-Type", "application/json")
-	json.NewEncoder(rw).Encode(jwks)
+	_ = json.NewEncoder(rw).Encode(jwks)
 }
 
 func (o *OIDCProvider) getAuthRoot(req *http.Request) string {
