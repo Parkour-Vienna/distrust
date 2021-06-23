@@ -74,3 +74,9 @@ clients:
 
 If you do not want to provide a plaintext secret, you can also provide the
 secret as an already hashed bcrypt2 value
+
+#### Group ACLs
+
+In case you want your client to be only available for members of a certain
+group, you can populate the `allowGroups` or `denyGroups` fields in the client
+config. This will either allow or deny access on a client basis.

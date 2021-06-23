@@ -28,6 +28,13 @@ type OIDCProvider struct {
 	discourseSecret string
 	privateKey      *rsa.PrivateKey
 }
+
+type DistrustClient struct {
+	fosite.DefaultClient
+	AllowGroups []string
+	DenyGroups  []string
+}
+
 type InFlightRequest struct {
 	Nonce int
 	Ar    fosite.AuthorizeRequester
