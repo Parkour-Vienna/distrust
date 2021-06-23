@@ -24,6 +24,8 @@ import (
 type clientConfig struct {
 	Secret       string
 	RedirectURIs []string
+	AllowGroups  []string
+	DenyGroups   []string
 }
 
 func main() {
@@ -102,12 +104,20 @@ func toFositeClients(clients map[string]clientConfig) map[string]fosite.Client {
 			hs, _ = bcrypt.GenerateFromPassword(hs, bcrypt.DefaultCost)
 		}
 
-		r[k] = &fosite.DefaultClient{
-			Secret:        hs,
-			RedirectURIs:  v.RedirectURIs,
-			ResponseTypes: []string{"id_token", "code", "token", "id_token token", "code id_token", "code token", "code id_token token"},
-			GrantTypes:    []string{"implicit", "refresh_token", "authorization_code", "password", "client_credentials"},
-			Scopes:        []string{"openid", "profile", "email"},
+		r[k] = &auth.DistrustClient{
+			DefaultClient: fosite.DefaultClient{
+				ID:            k,
+				Secret:        hs,
+				RedirectURIs:  v.RedirectURIs,
+				ResponseTypes: []string{"id_token", "code", "token", "id_token token", "code id_token", "code token", "code id_token token"},
+				GrantTypes:    []string{"implicit", "refresh_token", "authorization_code", "password", "client_credentials"},
+				Scopes:        []string{"openid", "profile", "email"},
+			},
+			AllowGroups: v.AllowGroups,
+			DenyGroups:  v.DenyGroups,
+		}
+		if len(v.AllowGroups) != 0 && len(v.DenyGroups) != 0 {
+			log.Warn().Str("client", k).Msg("allow and deny group options are set. allow groups will be used")
 		}
 	}
 	return r

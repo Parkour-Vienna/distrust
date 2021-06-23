@@ -39,5 +39,6 @@ oidc:
 clients:
   test:
     secret: foobar
+    allowGroups: ['team']
     redirectURIs:
       - 'https://openidconnect.net/callback'

@@ -2,9 +2,13 @@ package auth
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -83,6 +87,17 @@ func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Reques
 		Str("groups", values.Get("groups")).
 		Int("nonce", nonce).
 		Msg("parsed user data")
+
+	switch client := session.Ar.GetClient().(type) {
+	case *DistrustClient:
+		log.Debug().Str("client", client.GetID()).Msg("distrust client found, performing additonal validation")
+		err := validateGroups(client, values)
+		if err != nil {
+			log.Warn().Err(err).Msg("group validation failed")
+			fmt.Fprintf(rw, "You are not allowed to access this application: %s", err.Error())
+			return
+		}
+	}
 
 	// since scopes do not work with discourse, we simply grant the openid scope
 	session.Ar.GrantScope("openid")
@@ -225,4 +240,26 @@ func (o *OIDCProvider) getAuthRoot(req *http.Request) string {
 
 	aroot := scheme + "://" + req.Host + o.root
 	return aroot
+}
+
+func validateGroups(client *DistrustClient, values url.Values) error {
+	userGroups := values.Get("groups")
+	groupMap := make(map[string]bool)
+	for _, g := range strings.Split(userGroups, ",") {
+		groupMap[g] = true
+	}
+	for _, allowed := range client.AllowGroups {
+		if groupMap[allowed] {
+			return nil
+		}
+	}
+	if len(client.AllowGroups) != 0 {
+		return errors.New("user is not in allowed groups for this client")
+	}
+	for _, denied := range client.DenyGroups {
+		if groupMap[denied] {
+			return errors.New("access is denied for user in group " + denied)
+		}
+	}
+	return nil
 }
