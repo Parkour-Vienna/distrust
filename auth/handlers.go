@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/ory/fosite"
 	"github.com/ory/fosite/handler/openid"
 	"github.com/parkour-vienna/distrust/cryptutils"
 	"github.com/parkour-vienna/distrust/discourse"
@@ -202,6 +203,7 @@ func (o *OIDCProvider) informationEndpoint(rw http.ResponseWriter, req *http.Req
 		"issuer":                 "distrust",
 		"authorization_endpoint": aroot + "/auth",
 		"token_endpoint":         aroot + "/token",
+		"userinfo_endpoint":      aroot + "/userinfo",
 		"jwks_uri":               aroot + "/certs",
 		"response_types_supported": []string{
 			"code",
@@ -229,6 +231,32 @@ func (o *OIDCProvider) certsEndpoint(rw http.ResponseWriter, req *http.Request) 
 	}
 	rw.Header().Add("Content-Type", "application/json")
 	_ = json.NewEncoder(rw).Encode(jwks)
+}
+
+func (o *OIDCProvider) userInfoEndpoint(rw http.ResponseWriter, req *http.Request) {
+	session := o.newSession(nil)
+	tokenType, ar, err := o.oauth2.IntrospectToken(req.Context(), fosite.AccessTokenFromRequest(req), fosite.AccessToken, session)
+	if err != nil {
+		rfcerr := fosite.ErrorToRFC6749Error(err)
+		if rfcerr.StatusCode() == http.StatusUnauthorized {
+			rw.Header().Set("WWW-Authenticate", fmt.Sprintf("error=%s,error_description=%s", rfcerr.ErrorField, rfcerr.GetDescription()))
+		}
+		_, _ = rw.Write([]byte(err.Error()))
+		return
+	}
+
+	if tokenType != fosite.AccessToken {
+		err := errors.New("Only Access tokens can be used to fetch user information")
+		rw.Header().Set("WWW-Authenticate", fmt.Sprintf("error_description=%s", err.Error()))
+		_, _ = rw.Write([]byte(err.Error()))
+		return
+	}
+
+	info := ar.GetSession().(*openid.DefaultSession).Claims.ToMap()
+	delete(info, "rat")
+	delete(info, "exp")
+	delete(info, "at_hash")
+	_ = json.NewEncoder(rw).Encode(info)
 }
 
 func (o *OIDCProvider) getAuthRoot(req *http.Request) string {
