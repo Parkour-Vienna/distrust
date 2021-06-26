@@ -114,6 +114,7 @@ func (o *OIDCProvider) RegisterHandlers(r chi.Router) {
 	r.HandleFunc("/callback", o.callbackEndpoint)
 	r.HandleFunc("/token", o.tokenEndpoint)
 	r.HandleFunc("/introspect", o.introspectionEndpoint)
+	r.HandleFunc("/userinfo", o.userInfoEndpoint)
 
 	// revoke tokens
 	r.HandleFunc("/revoke", o.revokeEndpoint)
