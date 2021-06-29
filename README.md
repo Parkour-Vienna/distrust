@@ -12,6 +12,16 @@ To run distrust, copy the `distrust.example.yml` file to `distrust.yml` and cust
 ./distrust
 ```
 
+You can also use a container engine like podman or docker to run distrust
+
+```sh
+podman run -d \
+  --name distrust \
+  -v $PWD/distrust.yml:/distrust.yml:Z \
+  -p 3000:3000 \
+  ghcr.io/parkour-vienna/distrust:$VERSION
+```
+
 ## Configuration
 
 ### Configuring Discourse

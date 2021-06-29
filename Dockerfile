@@ -5,4 +5,6 @@ WORKDIR /
 COPY distrust /
 USER nonroot:nonroot
 
+EXPOSE 3000
+
 ENTRYPOINT ["/distrust"]
