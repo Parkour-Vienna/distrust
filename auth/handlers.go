@@ -223,6 +223,7 @@ func (o *OIDCProvider) certsEndpoint(rw http.ResponseWriter, req *http.Request) 
 	jwks := &jose.JSONWebKeySet{
 		Keys: []jose.JSONWebKey{
 			{
+				Algorithm: "RS256",
 				KeyID: cryptutils.KeyID(o.privateKey.PublicKey),
 				Use:   "sig",
 				Key:   &o.privateKey.PublicKey,
