@@ -47,7 +47,7 @@ jobs:
         with:
           push: true
           tags: ghcr.io/parkour-vienna/distrust:master
-          context: dist/distrust_linux_amd64
+          context: dist/distrust_linux_amd64_v1
           file: Dockerfile
       - name: Clear
         if: always()

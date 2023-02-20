@@ -26,3 +26,4 @@ changelog:
       - '^test:'
       - '^chore:'
       - '^Merge pull request'
+      - '^ci:'
