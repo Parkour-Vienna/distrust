@@ -123,10 +123,10 @@ func (o *OIDCProvider) RegisterHandlers(r chi.Router) {
 	r.HandleFunc("/certs", o.certsEndpoint)
 }
 
-func (o *OIDCProvider) newSession(values url.Values) *openid.DefaultSession {
+func (o *OIDCProvider) newSession(aroot string, values url.Values) *openid.DefaultSession {
 	return &openid.DefaultSession{
 		Claims: &jwt.IDTokenClaims{
-			Issuer:      "distrust",
+			Issuer:      aroot,
 			Subject:     values.Get("username"),
 			Audience:    []string{},
 			ExpiresAt:   time.Now().Add(time.Hour * 6),

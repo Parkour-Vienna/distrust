@@ -107,7 +107,8 @@ func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Reques
 	// NewAuthorizeResponse is capable of running multiple response type handlers which in turn enables this library
 	// to support open id connect.
 
-	mySessionData := o.newSession(values)
+	aroot := o.getAuthRoot(req)
+	mySessionData := o.newSession(aroot, values)
 	response, err := o.oauth2.NewAuthorizeResponse(req.Context(), session.Ar, mySessionData)
 
 	// Catch any errors, e.g.:
@@ -126,7 +127,8 @@ func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Reques
 
 func (o *OIDCProvider) introspectionEndpoint(rw http.ResponseWriter, req *http.Request) {
 	ctx := req.Context()
-	mySessionData := o.newSession(nil)
+	aroot := o.getAuthRoot(req)
+	mySessionData := o.newSession(aroot, nil)
 	ir, err := o.oauth2.NewIntrospectionRequest(ctx, req, mySessionData)
 	if err != nil {
 		log.Warn().Err(err)
@@ -153,7 +155,8 @@ func (o *OIDCProvider) tokenEndpoint(rw http.ResponseWriter, req *http.Request) 
 	ctx := req.Context()
 
 	// Create an empty session object which will be passed to the request handlers
-	mySessionData := o.newSession(nil)
+	aroot := o.getAuthRoot(req)
+	mySessionData := o.newSession(aroot, nil)
 
 	// This will create an access request object and iterate through the registered TokenEndpointHandlers to validate the request.
 	accessRequest, err := o.oauth2.NewAccessRequest(ctx, req, mySessionData)
@@ -200,7 +203,7 @@ func (o *OIDCProvider) informationEndpoint(rw http.ResponseWriter, req *http.Req
 	aroot := o.getAuthRoot(req)
 
 	_ = json.NewEncoder(rw).Encode(map[string]interface{}{
-		"issuer":                 "distrust",
+		"issuer":                 aroot,
 		"authorization_endpoint": aroot + "/auth",
 		"token_endpoint":         aroot + "/token",
 		"userinfo_endpoint":      aroot + "/userinfo",
@@ -223,6 +226,7 @@ func (o *OIDCProvider) certsEndpoint(rw http.ResponseWriter, req *http.Request) 
 	jwks := &jose.JSONWebKeySet{
 		Keys: []jose.JSONWebKey{
 			{
+				Algorithm: "RS256",
 				KeyID: cryptutils.KeyID(o.privateKey.PublicKey),
 				Use:   "sig",
 				Key:   &o.privateKey.PublicKey,
@@ -234,7 +238,8 @@ func (o *OIDCProvider) certsEndpoint(rw http.ResponseWriter, req *http.Request) 
 }
 
 func (o *OIDCProvider) userInfoEndpoint(rw http.ResponseWriter, req *http.Request) {
-	session := o.newSession(nil)
+	aroot := o.getAuthRoot(req)
+	session := o.newSession(aroot, nil)
 	tokenType, ar, err := o.oauth2.IntrospectToken(req.Context(), fosite.AccessTokenFromRequest(req), fosite.AccessToken, session)
 	if err != nil {
 		rfcerr := fosite.ErrorToRFC6749Error(err)
