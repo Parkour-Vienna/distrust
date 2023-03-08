@@ -11,13 +11,6 @@ builds:
       - linux
       - windows
       - darwin
-archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
 dockers:
   - image_templates:
       - 'ghcr.io/parkour-vienna/distrust:{{ .Version }}'
@@ -33,3 +26,4 @@ changelog:
       - '^test:'
       - '^chore:'
       - '^Merge pull request'
+      - '^ci:'

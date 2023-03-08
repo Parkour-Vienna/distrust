@@ -2,7 +2,7 @@
 
 ---
 
-Use discourse as an OIDC (oauth2) provider.
+Use discourse as an OIDC (OAuth 2.0) provider.
 
 ## Installation
 
@@ -59,14 +59,14 @@ discourse:
   secret: <your-chosen-secret>
 ```
 
-### Configuring the oidc provider
+### Configuring the OIDC provider
 
-The oidc provider is based on [ory/fosite](https://github.com/ory/fosite) and
+The OIDC provider is based on [ory/fosite](https://github.com/ory/fosite) and
 needs two configuration values to work. The first one is a 32-byte secret. It
-must be **exactly** 32 bytes long. The other parameter ist the private key used
+must be **exactly** 32 bytes long. The other parameter is the private key used
 for signing the tokens.
 
-If you need a fresh rsa private key, you can run `distrust genkey` to generate
+If you need a fresh RSA private key, you can run `distrust genkey` to generate
 one.
 
 > Both values can be left empty, however this will invalidate _all_ tokens on a
@@ -89,7 +89,7 @@ a client secret as well as the allowed redirect URIs.
 > As of this point, the redirect URIs do _not_ support wildcards
 
 The following example configures a client called `test` with the secret `foobar`
-which is authorized to redirect to the [openid connect test
+which is authorized to redirect to the [OpenID Connect test
 page](https://openidconnect.net)
 
 ```yaml
@@ -108,3 +108,17 @@ secret as an already hashed bcrypt2 value
 In case you want your client to be only available for members of a certain
 group, you can populate the `allowGroups` or `denyGroups` fields in the client
 config. This will either allow or deny access on a client basis.
+
+### Usage by Clients
+
+Distrust is based on [ory/fosite](https://github.com/ory/fosite), so you can 
+refer to that project's documentation for how to interact with the OpenID 
+Connect provider.
+
+The two endpoints the client will interact with are:
+
+* The authorization endpoint
+  * `https://example.com/oauth2/auth`
+* The token endpoint
+  * `https://example.com/oauth2/token`
+
