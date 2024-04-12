@@ -139,6 +139,7 @@ func (o *OIDCProvider) newSession(aroot string, values url.Values) *openid.Defau
 				"picture":        values.Get("avatar_url"),
 				"name":           values.Get("name"),
 				"groups":         strings.Split(values.Get("groups"), ","),
+				"external_id":    values.Get("external_id"),
 			},
 		},
 		Headers: &jwt.Headers{
