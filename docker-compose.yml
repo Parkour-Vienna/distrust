@@ -1,0 +1,8 @@
+version: '3'
+services:
+  distrust:
+    build: .
+    volumes:
+        - ./distrust.yml:/distrust.yml:ro
+    ports:
+     - "3000:3000"
