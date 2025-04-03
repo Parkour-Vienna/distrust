@@ -29,7 +29,7 @@ func (o *OIDCProvider) authEndpoint(rw http.ResponseWriter, req *http.Request) {
 	ar, err := o.oauth2.NewAuthorizeRequest(ctx, req)
 	if err != nil {
 		log.Warn().Err(err).Msg("parsing authorize request")
-		o.oauth2.WriteAuthorizeError(rw, ar, err)
+		o.oauth2.WriteAuthorizeError(ctx, rw, ar, err)
 		return
 	}
 
@@ -60,6 +60,9 @@ func (o *OIDCProvider) authEndpoint(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Request) {
+	// This context will be passed to all methods.
+	ctx := req.Context()
+
 	log.Trace().Msg("got a discourse callback")
 	cookie, err := req.Cookie("oidc_session")
 	if err != nil {
@@ -77,7 +80,7 @@ func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Reques
 
 	values, err := discourse.ValidateResponse(req.URL.Query().Get("sso"), req.URL.Query().Get("sig"), o.discourseSecret, session.Nonce)
 	if err != nil {
-		o.oauth2.WriteAuthorizeError(rw, session.Ar, err)
+		o.oauth2.WriteAuthorizeError(ctx, rw, session.Ar, err)
 		return
 	}
 
@@ -117,26 +120,28 @@ func (o *OIDCProvider) callbackEndpoint(rw http.ResponseWriter, req *http.Reques
 	// * ...
 	if err != nil {
 		log.Warn().Err(err).Msg("building authorize response")
-		o.oauth2.WriteAuthorizeError(rw, session.Ar, err)
+		o.oauth2.WriteAuthorizeError(ctx, rw, session.Ar, err)
 		return
 	}
 
 	// Last but not least, send the response!
-	o.oauth2.WriteAuthorizeResponse(rw, session.Ar, response)
+	o.oauth2.WriteAuthorizeResponse(ctx, rw, session.Ar, response)
 }
 
 func (o *OIDCProvider) introspectionEndpoint(rw http.ResponseWriter, req *http.Request) {
+	// This context will be passed to all methods.
 	ctx := req.Context()
+
 	aroot := o.getAuthRoot(req)
 	mySessionData := o.newSession(aroot, nil)
 	ir, err := o.oauth2.NewIntrospectionRequest(ctx, req, mySessionData)
 	if err != nil {
 		log.Warn().Err(err)
-		o.oauth2.WriteIntrospectionError(rw, err)
+		o.oauth2.WriteIntrospectionError(ctx, rw, err)
 		return
 	}
 
-	o.oauth2.WriteIntrospectionResponse(rw, ir)
+	o.oauth2.WriteIntrospectionResponse(ctx, rw, ir)
 }
 
 func (o *OIDCProvider) revokeEndpoint(rw http.ResponseWriter, req *http.Request) {
@@ -147,7 +152,7 @@ func (o *OIDCProvider) revokeEndpoint(rw http.ResponseWriter, req *http.Request)
 	err := o.oauth2.NewRevocationRequest(ctx, req)
 
 	// All done, send the response.
-	o.oauth2.WriteRevocationResponse(rw, err)
+	o.oauth2.WriteRevocationResponse(ctx, rw, err)
 }
 
 func (o *OIDCProvider) tokenEndpoint(rw http.ResponseWriter, req *http.Request) {
@@ -167,7 +172,7 @@ func (o *OIDCProvider) tokenEndpoint(rw http.ResponseWriter, req *http.Request) 
 	// * ...
 	if err != nil {
 		log.Warn().Err(err).Msg("parsing access request")
-		o.oauth2.WriteAccessError(rw, accessRequest, err)
+		o.oauth2.WriteAccessError(ctx, rw, accessRequest, err)
 		return
 	}
 
@@ -185,14 +190,14 @@ func (o *OIDCProvider) tokenEndpoint(rw http.ResponseWriter, req *http.Request) 
 	response, err := o.oauth2.NewAccessResponse(ctx, accessRequest)
 	if err != nil {
 		log.Warn().Err(err).Msg("building access response")
-		o.oauth2.WriteAccessError(rw, accessRequest, err)
+		o.oauth2.WriteAccessError(ctx, rw, accessRequest, err)
 		return
 	}
 
 	log.Info().Str("username", accessRequest.GetSession().(*openid.DefaultSession).Claims.Subject).Msg("user successfully authenticated")
 
 	// All done, send the response.
-	o.oauth2.WriteAccessResponse(rw, accessRequest, response)
+	o.oauth2.WriteAccessResponse(ctx, rw, accessRequest, response)
 
 	// The client now has a valid access token
 }
