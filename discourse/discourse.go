@@ -6,11 +6,10 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
-
-	"github.com/pkg/errors"
 )
 
 type SSOConfig struct {
@@ -39,7 +38,7 @@ func ValidateResponse(sso, sig, key string, nonce int) (url.Values, error) {
 
 	rsig, err := hex.DecodeString(sig)
 	if err != nil {
-		return nil, errors.Wrap(err, "decoding signature")
+		return nil, fmt.Errorf("decoding signature: %w", err)
 	}
 
 	if !bytes.Equal(h.Sum(nil), rsig) {
@@ -48,16 +47,16 @@ func ValidateResponse(sso, sig, key string, nonce int) (url.Values, error) {
 
 	qs, err := base64.StdEncoding.DecodeString(sso)
 	if err != nil {
-		return nil, errors.Wrap(err, "decoding discourse payload")
+		return nil, fmt.Errorf("decoding discourse payload: %w", err)
 	}
 	values, err := url.ParseQuery(string(qs))
 	if err != nil {
-		return nil, errors.Wrap(err, "parsing discourse payload")
+		return nil, fmt.Errorf("parsing discourse payload: %w", err)
 	}
 
 	rnonce, err := strconv.Atoi(values.Get("nonce"))
 	if err != nil {
-		return nil, errors.Wrap(err, "parsing returned nonce")
+		return nil, fmt.Errorf("parsing returned nonce: %w", err)
 	}
 
 	if rnonce != nonce {
