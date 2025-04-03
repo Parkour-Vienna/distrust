@@ -60,9 +60,6 @@ type OIDCOption interface {
 func NewOIDC(path string, disc discourse.SSOConfig, clients map[string]fosite.Client, opts ...OIDCOption) *OIDCProvider {
 	s := storage.NewMemoryStore()
 	s.Clients = clients
-	config := &compose.Config{
-		AccessTokenLifespan: time.Minute * 30,
-	}
 	oopts := oidcOptions{}
 	for _, opt := range opts {
 		opt.apply(&oopts)
@@ -79,8 +76,13 @@ func NewOIDC(path string, disc discourse.SSOConfig, clients map[string]fosite.Cl
 		priv, _ := rsa.GenerateKey(rand.Reader, 2048)
 		oopts.privateKey = priv
 	}
+
+	config := &fosite.Config{
+		AccessTokenLifespan: time.Minute * 30,
+		GlobalSecret: oopts.secret,
+	}
 	return &OIDCProvider{
-		oauth2:          compose.ComposeAllEnabled(config, s, oopts.secret, oopts.privateKey),
+		oauth2:          compose.ComposeAllEnabled(config, s, oopts.privateKey),
 		inflight:        map[uuid.UUID]*InFlightRequest{},
 		root:            path,
 		privateKey:      oopts.privateKey,
