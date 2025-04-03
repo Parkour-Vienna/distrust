@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-version: ~1.19
+          go-version: ~1.24
       - uses: actions/checkout@v2
       - run: go test ./...
   golangci:
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-version: ~1.19
+          go-version: ~1.24
       - uses: actions/checkout@v2
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
