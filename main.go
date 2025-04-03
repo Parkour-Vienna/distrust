@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -14,7 +15,6 @@ import (
 	"github.com/parkour-vienna/distrust/auth"
 	"github.com/parkour-vienna/distrust/discourse"
 	"github.com/parkour-vienna/distrust/requestlog"
-	"github.com/pkg/errors"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/spf13/viper"
@@ -130,7 +130,7 @@ func parsePrivateKey(raw string) (*rsa.PrivateKey, error) {
 	}
 	key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		return nil, errors.Wrap(err, "parsing private key")
+		return nil, fmt.Errorf("parsing private key: %w", err)
 	}
 	return key, nil
 }
