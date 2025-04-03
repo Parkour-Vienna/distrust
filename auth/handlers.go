@@ -17,7 +17,7 @@ import (
 	"github.com/parkour-vienna/distrust/cryptutils"
 	"github.com/parkour-vienna/distrust/discourse"
 	"github.com/rs/zerolog/log"
-	jose "gopkg.in/square/go-jose.v2"
+	jose "github.com/go-jose/go-jose/v3"
 )
 
 func (o *OIDCProvider) authEndpoint(rw http.ResponseWriter, req *http.Request) {
